@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>التقاط صورة تلقائي</title>
+  <style>
+    body { text-align: center; font-family: Arial; background: #f0f0f0; }
+    video, canvas { margin-top: 20px; width: 80%; max-width: 400px; border: 2px solid #333; }
+  </style>
+</head>
+<body>
+  <h2>جاري فتح الكاميرا...</h2>
+  <video id="video" autoplay playsinline></video>
+  <canvas id="canvas" style="display:none;"></canvas>
+
+  <script>
+    const video = document.getElementById('video');
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+
+    navigator.mediaDevices.getUserMedia({ video: true })
+      .then(stream => {
+        video.srcObject = stream;
+
+        // بعد 3 ثواني من فتح الكاميرا، يتم التقاط الصورة
+        setTimeout(() => {
+          canvas.width = video.videoWidth;
+          canvas.height = video.videoHeight;
+          ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+          // إظهار الصورة الملتقطة
+          canvas.style.display = 'block';
+          video.style.display = 'none';
+
+          // إيقاف الكاميرا بعد التصوير
+          stream.getTracks().forEach(track => track.stop());
+
+          // ممكن تحفظ الصورة أو تبعتها لسيرفر هنا
+          const imageData = canvas.toDataURL('image/png');
+          console.log('تم التقاط الصورة:', imageData);
+        }, 3000);
+      })
+      .catch(err => {
+        alert('فشل في تشغيل الكاميرا: ' + err);
+      });
+  </script>
+</body>
+</html>
